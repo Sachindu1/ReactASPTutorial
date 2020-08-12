@@ -17,6 +17,8 @@ namespace API
 {
     public class Startup
     {
+        // initializing the policy name
+        readonly string CrosPolicy = "CorsPolicy";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -32,6 +34,21 @@ namespace API
                 opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
             });
             // services.AddControllers();
+
+            /**
+             * adding Cross Origin Policy to the website
+             */
+            
+
+            services.AddCors(opt =>
+            {
+                opt.AddPolicy(name: CrosPolicy, policy =>
+                {
+                    policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000");
+                });
+            });
+
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
         }
 
@@ -45,14 +62,20 @@ namespace API
 
             //app.UseHttpsRedirection();
 
-            app.UseRouting();
+            app.UseRouting();       
 
             app.UseAuthorization();
+
+            // Adding Cors Policy created earlier
+            app.UseCors(CrosPolicy);
+
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
+            
+
         }
     }
 }
